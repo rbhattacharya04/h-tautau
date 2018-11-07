@@ -483,6 +483,7 @@ public:
 
     const kin_fit::FitResults& GetKinFitResults()
     {
+        return 1;
         Lock lock(*mutex);
         if(!HasBjetPair())
             throw exception("Can't retrieve KinFit results.");
