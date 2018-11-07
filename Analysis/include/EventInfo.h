@@ -495,20 +495,28 @@ public:
                 double energy_resolution_1 = GetBJet(1)->resolution() * GetBJet(1).GetMomentum().E();
                 double energy_resolution_2 = GetBJet(2)->resolution() * GetBJet(2).GetMomentum().E();
                 const auto& kinfitProducer = GetKinFitProducer();
-                const auto& result = kinfitProducer.Fit(GetLeg(1).GetMomentum(), GetLeg(2).GetMomentum(),
+                /*const auto& result = kinfitProducer.Fit(GetLeg(1).GetMomentum(), GetLeg(2).GetMomentum(),
                                                         GetBJet(1).GetMomentum(), GetBJet(2).GetMomentum(),
                                                         GetMET(), energy_resolution_1, energy_resolution_2);
                 kinfit_results->convergence = result.convergence;
                 kinfit_results->chi2 = result.chi2;
                 kinfit_results->probability = TMath::Prob(result.chi2, 2);
-                kinfit_results->mass = result.mass;
+                kinfit_results->mass = result.mass;*/
+                kinfit_results->convergence = 1;
+                kinfit_results->chi2 = 1;
+                kinfit_results->probability = 1;
+                kinfit_results->mass = 1;
             }
             else {
                 const size_t index = static_cast<size_t>(std::distance(event->kinFit_jetPairId.begin(), iter));
-                kinfit_results->convergence = event->kinFit_convergence.at(index);
+                /*kinfit_results->convergence = event->kinFit_convergence.at(index);
                 kinfit_results->chi2 = event->kinFit_chi2.at(index);
                 kinfit_results->probability = TMath::Prob(kinfit_results->chi2, 2);
-                kinfit_results->mass = event->kinFit_m.at(index);
+                kinfit_results->mass = event->kinFit_m.at(index);*/
+                kinfit_results->convergence = 1;
+                kinfit_results->chi2 = 1;
+                kinfit_results->probability = 1;
+                kinfit_results->mass = 1;
             }
         }
         return *kinfit_results;
