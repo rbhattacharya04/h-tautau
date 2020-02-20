@@ -20,7 +20,7 @@ namespace detail {
 
 struct JetInfo {
     double pt, eta;
-    //int hadronFlavour;
+    int isHardJet;
     double eff, SF;
     bool jetPuIdOutcome;
 
@@ -32,13 +32,16 @@ struct JetPUIdReaderInfo {
     using HistPtr = std::shared_ptr<TH2D>;
     //using JetFlavor = btag_calibration::BTagEntry::JetFlavor;
     using FilePtr = std::shared_ptr<TFile>;
+    using FileNamesMap = std::map<Period,std::map<DiscriminatorWP,std::map<int,std::string>>>;
 
     //ReaderPtr reader;
     //JetFlavor flavor;
     HistPtr eff_hist;
     HistPtr sf_hist;
+    int isHardJet;
+    Period period;
 
-    JetPUIdReaderInfo(FilePtr eff_file, FilePtr sf_file, DiscriminatorWP wp);
+    JetPUIdReaderInfo(FilePtr eff_file, FilePtr sf_file, int _isHardJet, Period _period, DiscriminatorWP wp);
     void Eval(JetInfo& jetInfo, const std::string& unc_name);
 
 private:
@@ -60,10 +63,11 @@ public:
     using ReaderInfo = detail::JetPUIdReaderInfo;
     using ReaderInfoPtr = std::shared_ptr<detail::JetPUIdReaderInfo>;
     using ReaderInfoMap = std::map<int, ReaderInfoPtr>;
+    using FileNamesMap = std::map<Period,std::map<DiscriminatorWP,std::map<int,std::string>>>;
     //using ReaderPtr = std::shared_ptr<btag_calibration::BTagCalibrationReader>;
 
-    JetPUIdWeight(const std::string& jetPuIdEffFileName, const std::string& jetPuIdSfFileName, Period period,
-               DiscriminatorWP wp);
+    JetPUIdWeight(const std::string& jetPuIdEffFileName, const std::string& jetPuIdSfFileName, const std::string &jetPuIdMisTagFileName, Period period,
+               DiscriminatorWP _wp);
 
     virtual double Get(EventInfoBase& event) const override;
     virtual double Get(const ntuple::ExpressEvent& /*event*/) const override;
@@ -72,13 +76,14 @@ public:
 private:
     static std::string GetUncertantyName(UncertaintyScale unc);
     static double GetJetPUIdWeight(const JetInfoVector& jetInfos);
-    ReaderInfo& GetReader() const;
+    ReaderInfo& GetReader(int isHardJet) const;
 
 private:
     //BTagCalibration calib;
-    //ReaderInfoMap readerInfos;
-    ReaderInfoPtr readerInfo;
-    BTagger bTagger;
+    ReaderInfoMap readerInfos;
+    DiscriminatorWP wp;
+    //ReaderInfoPtr readerInfo;
+    //BTagger bTagger;
 };
 
 } // namespace mc_corrections

@@ -18,7 +18,8 @@ JetInfo::JetInfo(EventInfoBase& eventInfo, size_t jetIndex) :
 
 }
 
-JetPUIdReaderInfo::JetPUIdReaderInfo(FilePtr eff_file, FilePtr sf_file, DiscriminatorWP wp) :
+JetPUIdReaderInfo::JetPUIdReaderInfo(FileNamesMap Eff_files, FileNamesMap Sf_files, int _isHardJet, Period _period, DiscriminatorWP wp) :
+ isHardJet(_isHardJet), period(_period)
 {
 
     static const std::map<DiscriminatorWP, std::string> wp_prefixes = {
@@ -29,12 +30,18 @@ JetPUIdReaderInfo::JetPUIdReaderInfo(FilePtr eff_file, FilePtr sf_file, Discrimi
     if(!wp_prefixes.count(wp))
         throw exception("Jet pu Id working point %1% not supported.") % wp;
 
-    const std::string eff_name = boost::str(boost::format("All/Efficiency/%1%_%2%_all")
-                                        % flavor_prefixes.at(flavor) % wp_prefixes.at(wp));
-    const std::string sf_name = boost::str(boost::format("All/Efficiency/%1%_%2%_all")
-                                        % flavor_prefixes.at(flavor) % wp_prefixes.at(wp));
-    eff_hist = HistPtr(root_ext::ReadCloneObject<TH2D>(*eff_file, name, "", true));
-    sf_hist = HistPtr(root_ext::ReadCloneObject<TH2D>(*sf_file, name, "", true));
+    static const std::map<int, std::string> isHardJet_prefixes = {
+        {0 , "mistag"}, {1 , "eff"},
+    };
+    FilePtr eff_file = root_ext::OpenRootFile(Eff_files.at(period).at(wp).at(isHardJet));
+    FilePtr sf_file = root_ext::OpenRootFile(Sf_files.at(period).at(wp).at(isHardJet));
+
+    const std::string eff_name = boost::str(boost::format("h2_%1%_mc%3%_%4%")
+                                        % isHardJet_prefixes.at(isHardJet) % period % wp_prefixes.at(wp));
+    const std::string sf_name = boost::str(boost::format("h2_%1%_sf%3%_%4%")
+                                       % isHardJet_prefixes.at(isHardJet) % period % wp_prefixes.at(wp));
+    eff_hist = HistPtr(root_ext::ReadCloneObject<TH2D>(*eff_file, eff_name, "", true));
+    sf_hist = HistPtr(root_ext::ReadCloneObject<TH2D>(*sf_file, sf_name, "", true));
 }
 
 void JetPUIdReaderInfo::Eval(JetInfo& jetInfo, const std::string& unc_name)
@@ -64,37 +71,34 @@ double JetPUIdReaderInfo::GetSF(double pt, double eta) const
 
 } // namespace detail
 
-JetPUIdWeight::JetPUIdWeight(const std::string& jetPuIdEffFileName, const std::string& jetPuIdSFFileName,Period period,
-                        DiscriminatorWP wp) :
+JetPUIdWeight::JetPUIdWeight(FileNamesMap Eff_files, FileNamesMap Sf_files,
+                             Period period, DiscriminatorWP _wp) :
+    wp(_wp)
 {
 
-    static const std::map<DiscriminatorWP, OperatingPoint> op_map = {
-        {DiscriminatorWP::Loose, BTagEntry::OP_LOOSE }, {DiscriminatorWP::Medium, BTagEntry::OP_MEDIUM} ,
-        {DiscriminatorWP::Tight, BTagEntry::OP_TIGHT}
+    static const std::vector<DiscriminatorWP> op_vec = {
+        DiscriminatorWP::Loose, DiscriminatorWP::Medium,
+        DiscriminatorWP::Tight
     };
 
-    if(!op_map.count(wp))
+    static const std::map<std::string, int> jet_configurations {
+        { "HardJet", 1 }, { "Not_HardJet", 0 },
+    };
+
+    if(std::find(op_vec.begin(), op_vec.end(), wp) != op_vec.end())
         throw exception("Working point %1% is not supported.") % wp;
 
     auto jetPuIdEffFile = root_ext::OpenRootFile(jetPuIdEffFileName);
     auto jetPuIdSFFile = root_ext::OpenRootFile(jetPuIdSFFileName);
+    auto jetPuIdMisTagFile = root_ext::OpenRootFile(jetPuIdMisTagFileName);
 
-    //ReaderPtr reader_b(new BTagCalibrationReader(op_map.at(wp), "central", {"up", "down"}));
-    //reader_b->load(calib, BTagEntry::FLAV_B, "comb");
-    readerInfo = new ReaderInfo(jetPuIdEffFile,jetPuIdSFFile, wp);
+    readerInfos[jet_configurations.at("HardJet")] =
+            ReaderInfoPtr(new ReaderInfo(Eff_files, Sf_files, jet_configurations.at("HardJet"),period,wp));
+    readerInfos[jet_configurations.at("Not_HardJet")] =
+            ReaderInfoPtr(new ReaderInfo(Eff_files, Sf_files, jet_configurations.at("Not_HardJet"),period,wp));
 
-    //readerInfos[jet_flavors.at(BTagEntry::FLAV_B)] =
-    //        ReaderInfoPtr(new ReaderInfo(reader_b, BTagEntry::FLAV_B, bTagEffFile, wp));
 
-    //ReaderPtr reader_c(new BTagCalibrationReader(op_map.at(wp), "central", {"up", "down"}));
-    //reader_c->load(calib, BTagEntry::FLAV_C, "comb");
-    //readerInfos[jet_flavors.at(BTagEntry::FLAV_C)] =
-    //        ReaderInfoPtr(new ReaderInfo(reader_c, BTagEntry::FLAV_C, bTagEffFile, wp));
 
-    //ReaderPtr reader_light(new BTagCalibrationReader(op_map.at(wp), "central", {"up", "down"}));
-    //reader_light->load(calib, BTagEntry::FLAV_UDSG, "incl");
-    //readerInfos[jet_flavors.at(BTagEntry::FLAV_UDSG)] =
-    //        ReaderInfoPtr(new ReaderInfo(reader_light, BTagEntry::FLAV_UDSG, bTagEffFile, wp));*/
 }
 
 double JetPUIdWeight::Get(EventInfoBase& eventInfo) const
@@ -115,9 +119,19 @@ double JetPUIdWeight::GetEx(EventInfoBase& eventInfo, UncertaintyScale unc) cons
     const ntuple::Event& event = *eventInfo;
     for (size_t jetIndex = 0; jetIndex < event.jets_p4.size(); ++jetIndex) {
         JetInfo jetInfo(eventInfo, jetIndex);
-        //if(std::abs(jetInfo.eta) >= bTagger.EtaCut()) continue;
-        GetReader().Eval(jetInfo, unc_name);
-        jetInfo.jetPuIdOutcome = jet.GetMomentum().pt() > cuts::hh_bbtautau_2017::jetID::max_pt_veto || (jet_pu_id.Passed(analysis::DiscriminatorWP::Loose));
+        if(jetInfo.pt > cuts::hh_bbtautau_2017::jetID::max_pt_veto) continue;
+        jetInfo.isHardJet = 0;
+        LorentzVectorE jet_p4 = event.jets_p4.at(jetIndex);
+        double min_dr = 999.9;
+        for(size_t genJetIndex = 0; genJetIndex < event.genJets_p4.size(); ++ genJetIndex){
+            LorentzVectorE genJet_p4 = event.jets_p4.at(genJetIndex);
+            double dr = ROOT::Math::VectorUtil::DeltaR(genJet_p4, jet_p4);
+            if (dr < min_dr) min_dr = dr;
+        }
+        if(min_dr<0.4) jetInfo.isHardJet = 1;
+        GetReader(jetInfo.isHardJet).Eval(jetInfo, unc_name);
+        analysis::DiscriminatorIdResults jet_pu_id = jet->GetPuId();
+        jetInfo.jetPuIdOutcome = (jet_pu_id.Passed(wp));
         jetInfos.push_back(jetInfo);
     }
 
@@ -142,9 +156,13 @@ double JetPUIdWeight::GetJetPUIdWeight(const JetInfoVector& jetInfos)
     return MC != 0 ? Data/MC : 0;
 }
 
-JetPUIdWeight::ReaderInfo& JetPUIdWeight::GetReader() const
+JetPUIdWeight::ReaderInfo& JetPUIdWeight::GetReader(int isHardJet) const
 {
-    return *readerInfo;
+    int default_isHardJet = 0;
+    int hardJet = std::abs(isHardJet);
+    if(!readerInfos.count(isHardJet))
+        hardJet = default_isHardJet;
+    return *readerInfos.at(hardJet);
 }
 
 } // namespace mc_corrections
