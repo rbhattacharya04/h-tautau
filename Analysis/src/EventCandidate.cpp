@@ -201,25 +201,52 @@ void EventCandidate::CreateJets()
     for(size_t n = 0; n < tuple_jets.size(); ++n)
         jet_candidates.emplace_back(tuple_jets.at(n));
   
+    bool m_enabled = true; //Option to switch on or JER smearing. Ultimately have to pass from outside
+    bool m_genJetMatcher = true; //Option to switch on gen matching. Ultimately have to pass from outside
+
+     std::vector<JetCandidate> corrected_jet_candidates;
+
     if(m_enabled && !event->isData){
 	m_enabled = false;
 	m_genJetMatcher = false;
     }
-   
+    double MIN_JET_Energy = 1e-2;
     for(const auto& jet : jet_candidates){
 	if((!m_enabled) || (jet.GetMomentum().pt() == 0)) continue;
 
         //get resolution and scale factor
-        //double jet_resolution;
-        //double jer_sf;
+        double jet_resolution;
+        double jer_sf;
+
+        LorentzVectorE matched_genJet = 0;
 
         //match gen jet and reco jet
         //
+        if (m_genJetMatcher){
+            auto genJets_p4 = event->genJets_p4;
+            double min_dR = std::numeric_limits<double>::infinity();
+            double m_dR_max = 0.2; //R/2 (R =0.4 for AK4 jets)
+            double m_dPt_max_factor; //have to intialise and pass from outside
+
+            for(const auto& genJet : genJets_p4){
+                double dR = genJet.DeltaR(genJet,jet);
+                if (dR > min_dR) continue;
+
+                if (dR < m_dR_max) {
+                    double dPt = std::abs(genJet.pt() - jet.pt());
+                    if (dPt > m_dPt_max_factor * jet_resolution) continue;
+
+                    min_dR = dR;
+                    matched_genJet = genJet;
+                }
+
+            }
+        }
 
 
         double smearFactor = 1.;
   
-        if(genJet){
+        if(matched_genJet){
             /*
 	     * Case 1: we have a "good" gen jet matched to the reco jet
 	     */
@@ -250,6 +277,7 @@ void EventCandidate::CreateJets()
 
 	}
         jet.scaleEnergy(smearFactor);
+        corrected_jet_candidates.push_back(jet);
     }
    
     
