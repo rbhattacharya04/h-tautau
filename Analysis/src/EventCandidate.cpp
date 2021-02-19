@@ -200,6 +200,60 @@ void EventCandidate::CreateJets()
         tuple_jets.emplace_back(*event, n);
     for(size_t n = 0; n < tuple_jets.size(); ++n)
         jet_candidates.emplace_back(tuple_jets.at(n));
+  
+    if(m_enabled && !event->isData){
+	m_enabled = false;
+	m_genJetMatcher = false;
+    }
+   
+    for(const auto& jet : jet_candidates){
+	if((!m_enabled) || (jet.GetMomentum().pt() == 0)) continue;
+
+        //get resolution and scale factor
+        //double jet_resolution;
+        //double jer_sf;
+
+        //match gen jet and reco jet
+        //
+
+
+        double smearFactor = 1.;
+  
+        if(genJet){
+            /*
+	     * Case 1: we have a "good" gen jet matched to the reco jet
+	     */
+                 
+             double dPt = jet.GetMomentum().pt() - genJet.GetMomentum().pt();
+      	     smearFactor = 1 + (jer_sf - 1.) * dPt / jet.GetMomentum().pt(); 
+        }      
+        else if(jer_sf > 1) {
+             /*
+	      * Case 2: we don't have a gen jet. Smear jet pt using random gaussian variation
+	      */ 
+
+
+	    double sigma = jet_resolution * std::sqrt(jer_sf*jer_sf - 1);
+	    std::normal_distribution<> d(0,sigma);
+	    smearFactor = 1. + d(m_random_generator) 
+        }
+        else 
+	    std::cout<<"Impossible to smear this jet"<<std::endl;
+        
+        if(jet.GetMomentum().energy() * smearFactor < MIN_JET_Energy){
+	    //Negative or too small smearFactor. We weould change direction of the jet
+	    //and this is not what we want.
+	    //Recompute the smearing factor in order to have jet energy == MIN_JET_ENERGY	
+
+            double newSmearFactor = MIN_JET_ENERGY/ jet.GetMomentum().energy();
+            smearFactor = newSmearFactor;     
+
+	}
+        jet.scaleEnergy(smearFactor);
+    }
+   
+    
+
     if(!event->isData && jec::JECUncertaintiesWrapper::IsJetUncertainties(unc_source)) {
         same_as_central = false;
         const auto& other_jets_p4 = event->other_jets_p4;
