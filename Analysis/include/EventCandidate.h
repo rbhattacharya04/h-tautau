@@ -11,6 +11,7 @@ This file is part of https://github.com/hh-italian-group/h-tautau. */
 #include "h-tautau/Analysis/include/EventCacheProvider.h"
 #include "h-tautau/Analysis/include/TauUncertainties.h"
 #include "h-tautau/JetTools/include/JECUncertaintiesWrapper.h"
+#include "h-tautau/JetTools/include/JERSmearing.h"
 
 
 namespace analysis {
