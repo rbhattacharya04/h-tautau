@@ -204,7 +204,7 @@ void EventCandidate::CreateJets()
     bool m_enabled = true; //Option to switch on or JER smearing. Ultimately have to pass from outside
     bool m_genJetMatcher = true; //Option to switch on gen matching. Ultimately have to pass from outside
 
-     std::vector<JetCandidate> corrected_jet_candidates;
+
 
     if(m_enabled && !event->isData){
 	m_enabled = false;
