@@ -200,85 +200,13 @@ void EventCandidate::CreateJets()
         tuple_jets.emplace_back(*event, n);
     for(size_t n = 0; n < tuple_jets.size(); ++n)
         jet_candidates.emplace_back(tuple_jets.at(n));
-  
-    bool m_enabled = true; //Option to switch on or JER smearing. Ultimately have to pass from outside
-    bool m_genJetMatcher = true; //Option to switch on gen matching. Ultimately have to pass from outside
-
-
 
     if(m_enabled && !event->isData){
-	m_enabled = false;
-	m_genJetMatcher = false;
+        JERSmearing jerSmearing;
+        jet_candidates = jerSmearing.ApplyShift(jet_candidates,event);
     }
-    double MIN_JET_Energy = 1e-2;
-    for(const auto& jet : jet_candidates){
-	if((!m_enabled) || (jet.GetMomentum().pt() == 0)) continue;
-
-        //get resolution and scale factor
-        double jet_resolution;
-        double jer_sf;
-
-        LorentzVectorE matched_genJet = 0;
-
-        //match gen jet and reco jet
-        //
-        if (m_genJetMatcher){
-            auto genJets_p4 = event->genJets_p4;
-            double min_dR = std::numeric_limits<double>::infinity();
-            double m_dR_max = 0.2; //R/2 (R =0.4 for AK4 jets)
-            double m_dPt_max_factor; //have to intialise and pass from outside
-
-            for(const auto& genJet : genJets_p4){
-                double dR = genJet.DeltaR(genJet,jet);
-                if (dR > min_dR) continue;
-
-                if (dR < m_dR_max) {
-                    double dPt = std::abs(genJet.pt() - jet.pt());
-                    if (dPt > m_dPt_max_factor * jet_resolution) continue;
-
-                    min_dR = dR;
-                    matched_genJet = genJet;
-                }
-
-            }
-        }
 
 
-        double smearFactor = 1.;
-  
-        if(matched_genJet){
-            /*
-	     * Case 1: we have a "good" gen jet matched to the reco jet
-	     */
-                 
-             double dPt = jet.GetMomentum().pt() - genJet.GetMomentum().pt();
-      	     smearFactor = 1 + (jer_sf - 1.) * dPt / jet.GetMomentum().pt(); 
-        }      
-        else if(jer_sf > 1) {
-             /*
-	      * Case 2: we don't have a gen jet. Smear jet pt using random gaussian variation
-	      */ 
-
-
-	    double sigma = jet_resolution * std::sqrt(jer_sf*jer_sf - 1);
-	    std::normal_distribution<> d(0,sigma);
-	    smearFactor = 1. + d(m_random_generator) 
-        }
-        else 
-	    std::cout<<"Impossible to smear this jet"<<std::endl;
-        
-        if(jet.GetMomentum().energy() * smearFactor < MIN_JET_Energy){
-	    //Negative or too small smearFactor. We weould change direction of the jet
-	    //and this is not what we want.
-	    //Recompute the smearing factor in order to have jet energy == MIN_JET_ENERGY	
-
-            double newSmearFactor = MIN_JET_ENERGY/ jet.GetMomentum().energy();
-            smearFactor = newSmearFactor;     
-
-	}
-        jet.scaleEnergy(smearFactor);
-        corrected_jet_candidates.push_back(jet);
-    }
    
     
 

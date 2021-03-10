@@ -26,7 +26,11 @@ public:
     //static const std::set<UncertaintySource>& JetFullUncertainties();
     //static const std::set<UncertaintySource>& JetReducedUncertainties();
 
-    JERSmearing(const std::string& Resolution_File_name, const std::string& SF_file_name, analysis::Period& period);
+    JERSmearing(const std::string& Resolution_File_name, const std::string& SF_file_name) { //, analysis::Period& period){
+        m_resolution_from_file.reset(new JME::JetResolution(Resolution_File_name));
+        m_scale_factor_from_file.reset(new JME::JetResolutionScaleFactor(SF_file_name));
+
+    }
 
     //const std::string ReturnJecName(UncertaintySource unc_source, bool is_full, analysis::Period& period);
     //static bool IsJetUncertainties(UncertaintySource unc_source);
@@ -42,32 +46,36 @@ public:
         //LorentzVector2* met = nullptr
         ) const
     {
-         //static const std::map<UncertaintyScale, bool> scales = {
-         //    { UncertaintyScale::Up, true }, { UncertaintyScale::Down, false }
-         //};
+        //static const std::map<UncertaintyScale, bool> scales = {
+        //    { UncertaintyScale::Up, true }, { UncertaintyScale::Down, false }
+        //};
 
-         //static const std::map<UncertaintyScale, int> scales_variation = {
-         //    { UncertaintyScale::Up, +1 }, { UncertaintyScale::Down, -1 }
-         //};
+        //static const std::map<UncertaintyScale, int> scales_variation = {
+        //    { UncertaintyScale::Up, +1 }, { UncertaintyScale::Down, -1 }
+        //};
 
         JetCollection corrected_jets;
-         //if(!uncertainty_map.count(uncertainty_source))
-         //    throw analysis::exception("Jet Uncertainty source % not found.") % uncertainty_source;
-         //if(scale == analysis::UncertaintyScale::Central)
-         //    throw analysis::exception("Uncertainty scale Central.");
-         //auto unc = uncertainty_map.at(uncertainty_source);
-         //double shifted_met_px = 0;
-         //double shifted_met_py = 0;
+        //if(!uncertainty_map.count(uncertainty_source))
+        //    throw analysis::exception("Jet Uncertainty source % not found.") % uncertainty_source;
+        //if(scale == analysis::UncertaintyScale::Central)
+        //    throw analysis::exception("Uncertainty scale Central.");
+        //auto unc = uncertainty_map.at(uncertainty_source);
+        //double shifted_met_px = 0;
+        //double shifted_met_py = 0;
+        JME::JetResolution resolution = *m_resolution_from_file;
+        JME::JetResolutionScaleFactor resolution_sf = *m_scale_factor_from_file;
 
-         for(const auto& jet : jet_candidates){
+        for(const auto& jet : jet_candidates){
             if((!m_enabled) || (jet.GetMomentum().pt() == 0)) {
                 corrected_jets.push_back(jet);
                 continue;
             }
 
-             //get resolution and scale factor
-            double jet_resolution;
-            double jer_sf;
+            //get resolution and scale factor
+            double jet_resolution = resolution.getResolution({{JME::Binning::JetPt, jet.GetMomentum().pt()},
+                                                              {JME::Binning::JetEta, jet.GetMomentum().eta()},
+                                                              {JME::Binning::Rho, *rho}});
+            double jer_sf = resolution_sf.getScaleFactor({{JME::Binning::JetEta, jet.eta()}}, m_systematic_variation);;
 
             double seed = event->evt + size_t(jet.GetMomentum().pt() * 100)
                            + size_t(std::abs(jet.GetMomentum().eta()) * 100) * 100
@@ -164,8 +172,9 @@ public:
         return corrected_jets;
     }
 private:
-    std::map<analysis::UncertaintySource, std::shared_ptr<JetCorrectionUncertainty>> uncertainty_map;
-
+    //std::map<analysis::UncertaintySource, std::shared_ptr<JetCorrectionUncertainty>> uncertainty_map;
+    std::unique_ptr<JME::JetResolution> m_resolution_from_file;
+    std::unique_ptr<JME::JetResolutionScaleFactor> m_scale_factor_from_file;
 
 };
 
