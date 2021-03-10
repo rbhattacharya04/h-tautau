@@ -11,6 +11,7 @@ This file is part of https://github.com/hh-italian-group/h-tautau. */
 #include "h-tautau/Core/include/TupleObjects.h"
 #include "JetCorrectorParameters.h"   // CondFormats/JetMETObjects/interface
 #include "JetCorrectionUncertainty.h" // CondFormats/JetMETObjects/interface
+#include "JetResolution.h" // CondFormats/JetMETObjects/interface/ &  JetMETCorrections/Modules/interface/
 
 namespace jer {
 
