@@ -5,6 +5,7 @@ This file is part of https://github.com/hh-italian-group/h-tautau. */
 
 #include <string>
 #include <vector>
+#include <random>
 #include "AnalysisTools/Core/include/TextIO.h"
 #include "h-tautau/Core/include/AnalysisTypes.h"
 #include "h-tautau/Core/include/Candidate.h"
@@ -32,9 +33,6 @@ public:
         m_scale_factor_from_file.reset(new JME::JetResolutionScaleFactor(SF_file_name));
 
     }
-
-    //const std::string ReturnJecName(UncertaintySource unc_source, bool is_full, analysis::Period& period);
-    //static bool IsJetUncertainties(UncertaintySource unc_source);
 
     template<typename JetCollection, typename LorentzVector1 = analysis::LorentzVector,
              typename LorentzVector2 = analysis::LorentzVector>
