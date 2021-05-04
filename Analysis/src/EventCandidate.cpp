@@ -13,6 +13,8 @@ EventCandidate::EventCandidate(const ntuple::Event& _event, UncertaintySource _u
     CreateLeptons();
     CreateJets();
     CreateFatJets();
+    jer::JERSmearing jerSmearing;
+
 }
 
 void EventCandidate::InitializeUncertainties(Period period, bool is_full, const std::string& working_path,
@@ -202,7 +204,7 @@ void EventCandidate::CreateJets()
         jet_candidates.emplace_back(tuple_jets.at(n));
 
     if(m_enabled && !event->isData){
-        JERSmearing jerSmearing;
+        //JERSmearing jerSmearing;
         jet_candidates = jerSmearing.ApplyShift(jet_candidates,event);
     }
 

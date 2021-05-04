@@ -38,29 +38,28 @@ public:
              typename LorentzVector2 = analysis::LorentzVector>
     JetCollection ApplyShift(const JetCollection& jet_candidates,
                              const ntuple::Event* event,
-                             //const std::vector<LorentzVectorE>& genJets_p4,
-        //analysis::UncertaintySource uncertainty_source,
-        //analysis::UncertaintyScale scale,
-        //const std::vector<LorentzVector1>* other_jets_p4 = nullptr,
-        //LorentzVector2* met = nullptr
-        ) const
+                             analysis::UncertaintySource uncertainty_source,
+                             analysis::UncertaintyScale scale,
+                             const std::vector<LorentzVector1>* other_jets_p4 = nullptr,
+                             LorentzVector2* met = nullptr) const
     {
-        //static const std::map<UncertaintyScale, bool> scales = {
-        //    { UncertaintyScale::Up, true }, { UncertaintyScale::Down, false }
-        //};
+        static const std::map<UncertaintyScale, bool> scales = {
+            { UncertaintyScale::Up, true }, { UncertaintyScale::Down, false }
+        };
 
-        //static const std::map<UncertaintyScale, int> scales_variation = {
-        //    { UncertaintyScale::Up, +1 }, { UncertaintyScale::Down, -1 }
-        //};
+        static const std::map<UncertaintyScale, int> scales_variation = {
+            { UncertaintyScale::Up, +1 }, { UncertaintyScale::Down, -1 }
+        };
 
         JetCollection corrected_jets;
-        //if(!uncertainty_map.count(uncertainty_source))
-        //    throw analysis::exception("Jet Uncertainty source % not found.") % uncertainty_source;
-        //if(scale == analysis::UncertaintyScale::Central)
-        //    throw analysis::exception("Uncertainty scale Central.");
-        //auto unc = uncertainty_map.at(uncertainty_source);
-        //double shifted_met_px = 0;
-        //double shifted_met_py = 0;
+        if(!uncertainty_map.count(uncertainty_source))
+            throw analysis::exception("Jet Uncertainty source % not found.") % uncertainty_source;
+        if(scale == analysis::UncertaintyScale::Central)
+            throw analysis::exception("Uncertainty scale Central.");
+        auto unc = uncertainty_map.at(uncertainty_source);
+        double shifted_met_px = 0;
+        double shifted_met_py = 0;
+
         JME::JetResolution resolution = *m_resolution_from_file;
         JME::JetResolutionScaleFactor resolution_sf = *m_scale_factor_from_file;
 
@@ -76,10 +75,10 @@ public:
                                                               {JME::Binning::Rho, *rho}});
             double jer_sf = resolution_sf.getScaleFactor({{JME::Binning::JetEta, jet.eta()}}, m_systematic_variation);;
 
-            double seed = event->evt + size_t(jet.GetMomentum().pt() * 100)
+            size_t seed = event->evt + size_t(jet.GetMomentum().pt() * 100)
                            + size_t(std::abs(jet.GetMomentum().eta()) * 100) * 100
                            + size_t(std::abs(jet.GetMomentum().Phi()) * 100) * 10000;
-            std::mt19937 m_random_generator = std::mt19937(seed);
+            std::mt19937_64 m_random_generator = std::mt19937(seed);
 
             LorentzVectorE matched_genJet = 0;
 
@@ -146,7 +145,7 @@ public:
              corrected_jets.push_back(corr_jet);
          }
 
-         /*if(met){
+         if(met){
             if(other_jets_p4 != nullptr){
                  for (size_t n = 0; n < other_jets_p4->size(); ++n){
                      LorentzVector1 other_jet = other_jets_p4->at(n);
@@ -166,12 +165,12 @@ public:
              shifted_met_py += met->py();
              double E = std::hypot(shifted_met_px,shifted_met_py);
              met->SetPxPyPzE(shifted_met_px,shifted_met_py,0,E);
-         }*/
+         }
 
         return corrected_jets;
     }
 private:
-    //std::map<analysis::UncertaintySource, std::shared_ptr<JetCorrectionUncertainty>> uncertainty_map;
+    std::map<analysis::UncertaintySource, std::shared_ptr<JetCorrectionUncertainty>> uncertainty_map;
     std::unique_ptr<JME::JetResolution> m_resolution_from_file;
     std::unique_ptr<JME::JetResolutionScaleFactor> m_scale_factor_from_file;
 
