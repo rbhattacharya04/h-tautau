@@ -53,8 +53,10 @@ public:
         };
 
         JetCollection corrected_jets;
-        if(uncertainty_source != UncertaintySource::JetResolution)
-            throw analysis::exception("Uncertainty source is not JetResolution") % uncertainty_source;
+        if(uncertainty_source != UncertaintySource::JetResolution){
+            uncertainty_source = UncertaintySource::JetResolution;
+            scale = UncertaintyScale::Central;
+        }
 
         double shifted_met_px = 0;
         double shifted_met_py = 0;

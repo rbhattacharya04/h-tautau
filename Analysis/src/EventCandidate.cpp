@@ -6,15 +6,13 @@ This file is part of https://github.com/hh-italian-group/h-tautau. */
 namespace analysis {
 
 EventCandidate::EventCandidate(const ntuple::Event& _event, UncertaintySource _unc_source,
-                               UncertaintyScale _unc_scale) :
+                               UncertaintyScale _unc_scale, bool _applyJER) :
     event(&_event), unc_source(_unc_source), unc_scale(_unc_scale), event_id(_event), same_as_central(true),
-    tuple_met(*event, MetType::PF), met(tuple_met, tuple_met.cov())
+    tuple_met(*event, MetType::PF), met(tuple_met, tuple_met.cov()), applyJER(_applyJER)
 {
     CreateLeptons();
     CreateJets();
     CreateFatJets();
-
-
 }
 
 void EventCandidate::InitializeUncertainties(Period period, bool is_full, const std::string& working_path,
@@ -101,7 +99,8 @@ void EventCandidate::InitializeUncertainties(Period period, bool is_full, const 
         { analysis::Period::Run2018, ""}
     };
 
-    *jerSmearing = jer::JERSmearing(file_jer.at(period), file_jer_sf.at(period));
+    if(applyJER)
+        *jerSmearing = jer::JERSmearing(file_jer.at(period), file_jer_sf.at(period));
 }
 
 const jec::JECUncertaintiesWrapper& EventCandidate::GetJecUncertainties()
@@ -224,15 +223,11 @@ void EventCandidate::CreateJets()
     for(size_t n = 0; n < tuple_jets.size(); ++n)
         jet_candidates.emplace_back(tuple_jets.at(n));
 
-    if(unc_source == analysis::UncertaintySource::JetResolution && !event->isData){
+    if(applyJER && !event->isData){
         //JERSmearing jerSmearing;
         jet_candidates = GetJERSmearing().ApplyShift(jet_candidates,event, unc_source, unc_scale, &other_jets_p4,
                                                      &shifted_met_p4);
     }
-
-
-   
-    
 
     if(!event->isData && jec::JECUncertaintiesWrapper::IsJetUncertainties(unc_source)) {
         same_as_central = false;

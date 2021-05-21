@@ -28,7 +28,7 @@ public:
     using Mutex = std::recursive_mutex;
     using Lock = std::lock_guard<Mutex>;
 
-    EventCandidate(const ntuple::Event& _event, UncertaintySource _unc_source, UncertaintyScale _unc_scale);
+    EventCandidate(const ntuple::Event& _event, UncertaintySource _unc_source, UncertaintyScale _unc_scale, bool _applyJER);
     EventCandidate(const EventCandidate&) = delete;
     EventCandidate(EventCandidate&&) = delete;
     EventCandidate& operator=(const EventCandidate&) = delete;
@@ -78,6 +78,7 @@ private:
     std::vector<JetCandidate> jet_candidates;
     FatJetCollection fatJets;
     MET met;
+    bool applyJER;
 
     static const std::unique_ptr<boost::optional<jec::JECUncertaintiesWrapper>> jecUncertainties;
     static const std::unique_ptr<boost::optional<TauESUncertainties>> tauESUncertainties;
