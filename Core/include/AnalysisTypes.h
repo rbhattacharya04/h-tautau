@@ -73,7 +73,7 @@ enum class UncertaintySource {
     TauCustomSF_DM0 = 132, TauCustomSF_DM1 = 133, TauCustomSF_DM10 = 134, TauCustomSF_DM11 = 135,
     VBFTriggerUnc_jets = 139, VBFTauTriggerUnc_DM0 = 140, VBFTauTriggerUnc_DM1 = 141, VBFTauTriggerUnc_3prong = 142,
     btag_lf = 143, btag_hf = 144, btag_hfstats1 = 145, btag_hfstats2 = 146,
-    btag_lfstats1 = 147, btag_lfstats2 = 148, btag_cferr1 = 149, btag_cferr2 = 150
+    btag_lfstats1 = 147, btag_lfstats2 = 148, btag_cferr1 = 149, btag_cferr2 = 150, JetResolution = 151
 };
 ENUM_NAMES(UncertaintySource) = {
     { UncertaintySource::None, "None" }, { UncertaintySource::TauES, "TauES" },
@@ -217,7 +217,8 @@ ENUM_NAMES(UncertaintySource) = {
     { UncertaintySource::btag_lf, "btag_lf" }, { UncertaintySource::btag_hf, "btag_hf" },
     { UncertaintySource::btag_hfstats1, "btag_hfstats1" },{ UncertaintySource::btag_hfstats2, "btag_hfstats2" },
     { UncertaintySource::btag_lfstats1, "btag_lfstats1" }, { UncertaintySource::btag_lfstats2, "btag_lfstats2" },
-    { UncertaintySource::btag_cferr1, "btag_cferr1" }, { UncertaintySource::btag_cferr2, "btag_cferr2" }
+    { UncertaintySource::btag_cferr1, "btag_cferr1" }, { UncertaintySource::btag_cferr2, "btag_cferr2" },
+    { UncertaintySource::JetResolution, "JetResolution"}
 };
 
 const std::set<UncertaintyScale>& GetAllUncertaintyScales();

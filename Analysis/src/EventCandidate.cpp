@@ -13,7 +13,7 @@ EventCandidate::EventCandidate(const ntuple::Event& _event, UncertaintySource _u
     CreateLeptons();
     CreateJets();
     CreateFatJets();
-    jer::JERSmearing jerSmearing;
+
 
 }
 
@@ -88,6 +88,20 @@ void EventCandidate::InitializeUncertainties(Period period, bool is_full, const 
             tools::FullPath({ working_path, file_tes.at(period).at(tau_id_discriminator).at(0) }),
             tools::FullPath({ working_path, file_tes.at(period).at(tau_id_discriminator).at(1) }),
             tools::FullPath({ working_path, file_ele_faking_tau.at(period) }));
+
+    const std::map<analysis::Period, std::string> file_jer = {
+        { analysis::Period::Run2016, ""},
+        { analysis::Period::Run2017, ""},
+        { analysis::Period::Run2018, ""}
+    };
+
+    const std::map<analysis::Period, std::string> file_jer_sf = {
+        { analysis::Period::Run2016, ""},
+        { analysis::Period::Run2017, ""},
+        { analysis::Period::Run2018, ""}
+    };
+
+    *jerSmearing = jer::JERSmearing(file_jer.at(period), file_jer_sf.at(period));
 }
 
 const jec::JECUncertaintiesWrapper& EventCandidate::GetJecUncertainties()
@@ -102,6 +116,13 @@ const TauESUncertainties& EventCandidate::GetTauESUncertainties()
     if(!(*tauESUncertainties))
         throw exception("TauES uncertainties are not initialized.");
     return **tauESUncertainties;
+}
+
+const jer::JERSmearing& EventCandidate::GetJERSmearing()
+{
+    if(!(*jerSmearing))
+        throw exception("JER is not initialized.");
+    return **jerSmearing;
 }
 
 const LepCollection& EventCandidate::GetLeptons() const { return lepton_candidates; }
@@ -203,9 +224,10 @@ void EventCandidate::CreateJets()
     for(size_t n = 0; n < tuple_jets.size(); ++n)
         jet_candidates.emplace_back(tuple_jets.at(n));
 
-    if(m_enabled && !event->isData){
+    if(unc_source == analysis::UncertaintySource::JetResolution && !event->isData){
         //JERSmearing jerSmearing;
-        jet_candidates = jerSmearing.ApplyShift(jet_candidates,event);
+        jet_candidates = GetJERSmearing().ApplyShift(jet_candidates,event, unc_source, unc_scale, &other_jets_p4,
+                                                     &shifted_met_p4);
     }
 
 

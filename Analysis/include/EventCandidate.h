@@ -38,6 +38,7 @@ public:
 
     static const jec::JECUncertaintiesWrapper& GetJecUncertainties();
     static const TauESUncertainties& GetTauESUncertainties();
+    static const jer::JERSmearing& GetJERSmearing();
 
     const LepCollection& GetLeptons() const;
     const JetCollection& GetJets() const;
@@ -80,6 +81,8 @@ private:
 
     static const std::unique_ptr<boost::optional<jec::JECUncertaintiesWrapper>> jecUncertainties;
     static const std::unique_ptr<boost::optional<TauESUncertainties>> tauESUncertainties;
+    static const std::unique_ptr<boost::optional<jer::JERSmearing>> jerSmearing;
+
 };
 
 } // namespace analysis
