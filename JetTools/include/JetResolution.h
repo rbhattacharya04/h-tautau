@@ -83,7 +83,7 @@ namespace std {
 
 namespace JME {
 
-class JetParameters {
+    class JetParameters {
         public:
             typedef std::unordered_map<Binning, float> value_type;
 
@@ -108,55 +108,6 @@ class JetParameters {
 
         private:
             value_type m_values;
-    };
-
-
-    class JetResolution {
-        public:
-            JetResolution(const std::string& filename);
-
-            JetResolution() {
-                // Empty
-            }
-
-            float getResolution(const JetParameters& parameters) const;
-
-            void dump() const {
-                m_object->dump();
-            }
-
-            // Advanced usage
-            const JetResolutionObject* getResolutionObject() const {
-                return m_object.get();
-            }
-
-        private:
-            std::shared_ptr<JetResolutionObject> m_object;
-    };
-
-    class JetResolutionScaleFactor {
-        public:
-            JetResolutionScaleFactor(const std::string& filename);
-
-            JetResolutionScaleFactor() {
-                // Empty
-            }
-
-            float getScaleFactor(const JetParameters& parameters, Variation variation = Variation::NOMINAL) const;
-
-
-            void dump() const {
-                m_object->dump();
-            }
-
-            // Advanced usage
-            const JetResolutionObject* getResolutionObject() const {
-                return m_object.get();
-            }
-
-        private:
-            std::shared_ptr<JetResolutionObject> m_object;
-
     };
 
     class JetResolutionObject {
@@ -312,4 +263,53 @@ class JetParameters {
 
                 bool m_valid = false;
     };
+
+    class JetResolution {
+        public:
+            JetResolution(const std::string& filename);
+
+            JetResolution() {
+                // Empty
+            }
+
+            float getResolution(const JetParameters& parameters) const;
+
+            void dump() const {
+                m_object->dump();
+            }
+
+            // Advanced usage
+            const JetResolutionObject* getResolutionObject() const {
+                return m_object.get();
+            }
+
+        private:
+            std::shared_ptr<JetResolutionObject> m_object;
+    };
+
+    class JetResolutionScaleFactor {
+        public:
+            JetResolutionScaleFactor(const std::string& filename);
+
+            JetResolutionScaleFactor() {
+                // Empty
+            }
+
+            float getScaleFactor(const JetParameters& parameters, Variation variation = Variation::NOMINAL) const;
+
+
+            void dump() const {
+                m_object->dump();
+            }
+
+            // Advanced usage
+            const JetResolutionObject* getResolutionObject() const {
+                return m_object.get();
+            }
+
+        private:
+            std::shared_ptr<JetResolutionObject> m_object;
+
+    };
+
 };
