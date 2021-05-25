@@ -110,9 +110,9 @@ public:
 
         //get resolution and scale factor
         double jet_resolution = resolution.getResolution({{JME::Binning::JetPt, jet.GetMomentum().pt()},
-                                                          {JME::Binning::JetEta, jet.GetMomentum().eta()},
-                                                          {JME::Binning::Rho, *rho}});
-        double jer_sf = resolution_sf.getScaleFactor({{JME::Binning::JetEta, jet.eta()}}, variation);;
+                                                          {JME::Binning::JetEta, jet.GetMomentum().eta()}});
+                                                          //,{JME::Binning::Rho, *rho}});
+        double jer_sf = resolution_sf.getScaleFactor({{JME::Binning::JetEta, jet.eta()}}, variation);
 
         size_t seed = event->evt + size_t(jet.GetMomentum().pt() * 100)
                        + size_t(std::abs(jet.GetMomentum().eta()) * 100) * 100
