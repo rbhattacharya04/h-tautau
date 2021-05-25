@@ -66,7 +66,7 @@ public:
 
         for(const auto& jet : jet_candidates){
 
-            if((!m_enabled) || (jet.GetMomentum().pt() == 0)) {
+            if(jet.GetMomentum().pt() == 0) {
                 corrected_jets.push_back(jet);
                 continue;
             }
@@ -180,7 +180,6 @@ public:
 
 
 private:
-    std::map<analysis::UncertaintySource, std::shared_ptr<JetCorrectionUncertainty>> uncertainty_map;
     std::unique_ptr<JME::JetResolution> m_resolution_from_file;
     std::unique_ptr<JME::JetResolutionScaleFactor> m_scale_factor_from_file;
     static constexpr const double MIN_JET_ENERGY = 1e-2;
