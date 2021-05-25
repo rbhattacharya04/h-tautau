@@ -112,15 +112,15 @@ public:
         double jet_resolution = resolution.getResolution({{JME::Binning::JetPt, jet.GetMomentum().pt()},
                                                           {JME::Binning::JetEta, jet.GetMomentum().eta()}});
                                                           //,{JME::Binning::Rho, *rho}});
-        double jer_sf = resolution_sf.getScaleFactor({{JME::Binning::JetEta, jet.eta()}}, variation);
+        double jer_sf = resolution_sf.getScaleFactor({{JME::Binning::JetEta, jet.GetMomentum().eta()}}, variation);
 
         size_t seed = event->evt + size_t(jet.GetMomentum().pt() * 100)
                        + size_t(std::abs(jet.GetMomentum().eta()) * 100) * 100
                        + size_t(std::abs(jet.GetMomentum().Phi()) * 100) * 10000;
 
-        std::mt19937_64 m_random_generator = std::mt19937(seed);
+        std::mt19937_64 m_random_generator = std::mt19937_64(seed);
 
-        LorentzVectorE matched_genJet = 0;
+        LorentzVectorE matched_genJet; //= 0;
 
         //match gen jet and reco jet
         //
@@ -131,11 +131,11 @@ public:
         double m_dPt_max_factor; //have to intialise and pass from outside
 
         for(const auto& genJet : genJets_p4){
-            double dR = genJet.DeltaR(genJet,jet);
+            double dR = ROOT::Math::VectorUtil::DeltaR(genJet, jet.GetMomentum());
             if (dR > min_dR) continue;
 
             if (dR < m_dR_max) {
-                double dPt = std::abs(genJet.pt() - jet.GetMometum().pt());
+                double dPt = std::abs(genJet.Pt() - jet.GetMomentum().pt());
                 if (dPt > m_dPt_max_factor * jet_resolution) continue;
 
                 min_dR = dR;
@@ -150,7 +150,7 @@ public:
             * Case 1: we have a "good" gen jet matched to the reco jet
             */
 
-            double dPt = jet.GetMomentum().pt() - genJet.GetMomentum().pt();
+            double dPt = jet.GetMomentum().pt() - matched_genJet.Pt();
             smearFactor = 1 + (jer_sf - 1.) * dPt / jet.GetMomentum().pt();
         }
         else if(jer_sf > 1) {
