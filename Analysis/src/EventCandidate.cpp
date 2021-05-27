@@ -225,8 +225,11 @@ void EventCandidate::CreateJets()
 
     if(applyJER && !event->isData){
         //JERSmearing jerSmearing;
+        const auto& other_jets_p4 = event->other_jets_p4;
+        auto shifted_met_p4(met.GetMomentum());
         jet_candidates = GetJERSmearing().ApplyShift(jet_candidates,event, unc_source, unc_scale, &other_jets_p4,
                                                      &shifted_met_p4);
+        met.SetMomentum(shifted_met_p4);
     }
 
     if(!event->isData && jec::JECUncertaintiesWrapper::IsJetUncertainties(unc_source)) {

@@ -161,7 +161,7 @@ public:
 
             double sigma = jet_resolution * std::sqrt(jer_sf*jer_sf - 1);
             std::normal_distribution<> d(0,sigma);
-            smearFactor = 1. + d(m_random_generator)
+            smearFactor = 1. + d(m_random_generator);
         }
         else
             std::cout<<"Impossible to smear this jet"<<std::endl;
