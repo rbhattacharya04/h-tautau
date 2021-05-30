@@ -99,7 +99,7 @@ void EventCandidate::InitializeUncertainties(Period period, bool is_full, const 
         { analysis::Period::Run2018, ""}
     };
 
-    if(applyJER)
+    //if(applyJER)
         *jerSmearing = jer::JERSmearing(file_jer.at(period), file_jer_sf.at(period));
 }
 
