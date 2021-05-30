@@ -121,7 +121,7 @@ public:
         std::mt19937_64 m_random_generator = std::mt19937_64(seed);
 
         LorentzVectorE matched_genJet; //= 0;
-
+        bool match_success = false;
         //match gen jet and reco jet
         //
 
@@ -140,12 +140,13 @@ public:
 
                 min_dR = dR;
                 matched_genJet = genJet;
+                match_success = true;
             }
         }
 
         double smearFactor = 1.;
 
-        if(matched_genJet){
+        if(match_success){
             /*
             * Case 1: we have a "good" gen jet matched to the reco jet
             */
