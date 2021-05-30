@@ -75,7 +75,7 @@ public:
 
             JetCandidate corr_jet(jet);
             //smearedJet.scaleEnergy(smearFactor);
-            corr_jet.GetMomentum().SetE(jet.GetMomemtum().energy()*smearFactor);
+            corr_jet.GetMomentum().SetE(jet.GetMomentum().energy()*smearFactor);
             corrected_jets.push_back(corr_jet);
             shifted_met_px += jet.GetMomentum().px() - corr_jet.GetMomentum().px();
             shifted_met_py += jet.GetMomentum().py() - corr_jet.GetMomentum().py();
