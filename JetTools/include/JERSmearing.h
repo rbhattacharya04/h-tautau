@@ -40,7 +40,6 @@ public:
                              const ntuple::Event* event,
                              analysis::UncertaintySource uncertainty_source,
                              analysis::UncertaintyScale scale,
-                             const std::vector<LorentzVector1>* other_jets_p4 = nullptr,
                              LorentzVector2* met = nullptr) const
     {
         //static const std::map<UncertaintyScale, bool> scales = {
@@ -82,19 +81,6 @@ public:
          }
 
          if(met){
-            if(other_jets_p4 != nullptr){
-                 for (size_t n = 0; n < other_jets_p4->size(); ++n){
-                     LorentzVector1 other_jet = other_jets_p4->at(n);
-                     JetCandidate other_jet_candidate;
-                     other_jet_candidate.SetMomentum(other_jet);
-                     double smearFactor =  GetSmearFactor(other_jet_candidate, event, resolution, resolution_sf, scales_variation.at(scale));
-                     const auto shiftedMomentum = other_jet;
-                     shiftedMomentum.SetEnergy(other_jet.Energy()*smearFactor);
-                     shifted_met_px += other_jet.px() - shiftedMomentum.px();
-                     shifted_met_py += other_jet.py() - shiftedMomentum.py();
-                 }
-            }
-
              shifted_met_px += met->px();
              shifted_met_py += met->py();
              double E = std::hypot(shifted_met_px,shifted_met_py);
