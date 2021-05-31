@@ -122,7 +122,7 @@ public:
 
             if (dR < m_dR_max) {
                 double dPt = std::abs(genJet.Pt() - jet.GetMomentum().pt());
-                if (dPt > m_dPt_max_factor * jet_resolution) continue;
+                if (dPt > M_DPT_MAX_FACTOR * jet_resolution) continue;
 
                 min_dR = dR;
                 matched_genJet = genJet;
@@ -170,7 +170,7 @@ private:
     std::unique_ptr<JME::JetResolution> m_resolution_from_file;
     std::unique_ptr<JME::JetResolutionScaleFactor> m_scale_factor_from_file;
     static constexpr const double MIN_JET_ENERGY = 1e-2;
-
+    static constexpr const double M_DPT_MAX_FACTOR = 3;
 };
 
 } // namespace jec
