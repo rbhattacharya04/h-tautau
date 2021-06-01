@@ -114,7 +114,7 @@ public:
         auto genJets_p4 = event->genJets_p4;
         double min_dR = std::numeric_limits<double>::infinity();
         double m_dR_max = 0.2; //R/2 (R =0.4 for AK4 jets)
-        double m_dPt_max_factor; //have to intialise and pass from outside
+        double m_dPt_max_factor = 3; // Maybe have to pass from outside
 
         for(const auto& genJet : genJets_p4){
             double dR = ROOT::Math::VectorUtil::DeltaR(genJet, jet.GetMomentum());
@@ -122,7 +122,7 @@ public:
 
             if (dR < m_dR_max) {
                 double dPt = std::abs(genJet.Pt() - jet.GetMomentum().pt());
-                if (dPt > M_DPT_MAX_FACTOR * jet_resolution) continue;
+                if (dPt > m_dPt_max_factor * jet_resolution) continue;
 
                 min_dR = dR;
                 matched_genJet = genJet;
@@ -170,7 +170,7 @@ private:
     std::unique_ptr<JME::JetResolution> m_resolution_from_file;
     std::unique_ptr<JME::JetResolutionScaleFactor> m_scale_factor_from_file;
     static constexpr const double MIN_JET_ENERGY = 1e-2;
-    static constexpr const double M_DPT_MAX_FACTOR = 3;
+
 };
 
 } // namespace jec
