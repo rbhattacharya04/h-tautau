@@ -90,7 +90,7 @@ public:
         return corrected_jets;
     }
 
-    const double GetSmearFactor(JetCandidate jet, const ntuple::Event* event,
+    double GetSmearFactor(JetCandidate jet, const ntuple::Event* event,
                           JME::JetResolution resolution, JME::JetResolutionScaleFactor resolution_sf,
                           Variation variation){
 
