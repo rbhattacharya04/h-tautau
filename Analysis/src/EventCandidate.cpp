@@ -117,7 +117,7 @@ const TauESUncertainties& EventCandidate::GetTauESUncertainties()
     return **tauESUncertainties;
 }
 
-jer::JERSmearing& EventCandidate::GetJERSmearing()
+const jer::JERSmearing &EventCandidate::GetJERSmearing()
 {
     if(!(*jerSmearing))
         throw exception("JER is not initialized.");

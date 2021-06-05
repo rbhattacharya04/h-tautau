@@ -38,7 +38,7 @@ public:
 
     static const jec::JECUncertaintiesWrapper& GetJecUncertainties();
     static const TauESUncertainties& GetTauESUncertainties();
-    static jer::JERSmearing& GetJERSmearing();
+    static const jer::JERSmearing& GetJERSmearing();
 
     const LepCollection& GetLeptons() const;
     const JetCollection& GetJets() const;
