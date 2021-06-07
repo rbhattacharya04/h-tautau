@@ -422,11 +422,11 @@ std::unique_ptr<EventInfo> EventInfo::Create(const ntuple::Event& event,
                                              const SignalObjectSelector& signalObjectSelector,
                                              const BTagger& bTagger, DiscriminatorWP btag_wp,
                                              SummaryInfoPtr summaryInfo, UncertaintySource unc_source,
-                                             UncertaintyScale unc_scale, bool is_sync, bool debug)
+                                             UncertaintyScale unc_scale, bool is_sync, bool debug, bool applyJER)
 {
     if(debug)
         std::cout << "Creating event candidate... ";
-    auto event_candidate = std::make_shared<EventCandidate>(event, unc_source, unc_scale);
+    auto event_candidate = std::make_shared<EventCandidate>(event, unc_source, unc_scale, applyJER);
     return Create(event_candidate, signalObjectSelector, bTagger, btag_wp, summaryInfo, is_sync, debug);
 }
 
