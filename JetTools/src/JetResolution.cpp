@@ -113,7 +113,7 @@ namespace JME {
         for (const auto& bin: binning) {
             const auto& it = m_values.find(bin);
             if (it == m_values.cend()) {
-                throw exception("JER parametrisation depends on '" +
+                throw analysis::exception("JER parametrisation depends on '" +
                                 JetParameters::binning_to_string.left.at(bin) +
                             "' but no value for this parameter has been specified. Please call the "
                             "appropriate 'set' function of the JME::JetParameters object");
@@ -132,13 +132,13 @@ namespace JME {
 
         // We need at least 3 tokens
         if (tokens.size() < 3) {
-            throw exception("Definition line needs at least three tokens. Please check file format.");
+            throw analysis::exception("Definition line needs at least three tokens. Please check file format.");
         }
 
         size_t n_bins = std::stoul(tokens[0]);
 
         if (tokens.size() < (n_bins + 2)) {
-            throw exception("Invalid file format. Please check.");
+            throw analysis::exception("Invalid file format. Please check.");
         }
 
         for (size_t i = 0; i < n_bins; i++) {
@@ -148,7 +148,7 @@ namespace JME {
         size_t n_variables = std::stoul(tokens[n_bins + 1]);
 
         if (tokens.size() < (1 + n_bins + 1 + n_variables + 1)) {
-            throw exception("Invalid file format. Please check.");
+            throw analysis::exception("Invalid file format. Please check.");
         }
 
         for (size_t i = 0; i < n_variables; i++) {
@@ -173,7 +173,7 @@ namespace JME {
         for (const auto& bin: m_bins_name) {
             const auto& b = JetParameters::binning_to_string.right.find(bin);
             if (b == JetParameters::binning_to_string.right.cend()) {
-                throw exception("Bin name not supported: '" + bin + "'");
+                throw analysis::exception("Bin name not supported: '" + bin + "'");
             }
             m_bins.push_back(b->second);
         }
@@ -181,7 +181,7 @@ namespace JME {
         for (const auto& v: m_variables_name) {
             const auto& var = JetParameters::binning_to_string.right.find(v);
             if (var == JetParameters::binning_to_string.right.cend()) {
-                throw exception("Variable name not supported: '" + v + "'");
+                throw analysis::exception("Variable name not supported: '" + v + "'");
             }
             m_variables.push_back(var->second);
         }
@@ -192,7 +192,7 @@ namespace JME {
         std::vector<std::string> tokens = getTokens(line);
 
         if (tokens.size() < (def.nBins() * 2 + def.nVariables() * 2 + 1)) {
-            throw exception("Invalid record. Please check file format. Record: " + line);
+            throw analysis::exception("Invalid record. Please check file format. Record: " + line);
         }
 
         size_t pos = 0;
@@ -206,7 +206,7 @@ namespace JME {
         size_t n_parameters = std::stoul(tokens[pos++]);
 
         if (tokens.size() < (def.nBins() * 2 + def.nVariables() * 2 + 1 + (n_parameters - def.nVariables()  * 2))) {
-            throw exception("Invalid record. Please check file format. Record: " + line);
+            throw analysis::exception("Invalid record. Please check file format. Record: " + line);
         }
 
         for (size_t i = 0; i < def.nVariables(); i++) {
@@ -227,7 +227,7 @@ namespace JME {
         std::ifstream f(filename);
 
         if (! f.good()) {
-            throw exception("Can't read input file '" + filename + "'");
+            throw analysis::exception("Can't read input file '" + filename + "'");
         }
 
         for (std::string line; std::getline(f, line); ) {
