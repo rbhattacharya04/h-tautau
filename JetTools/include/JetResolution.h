@@ -5,6 +5,7 @@ This file is part of https://github.com/hh-italian-group/h-tautau. */
 
 #include <string>
 #include <vector>
+#include <exception>
 #include <TFormula.h>
 #include "AnalysisTools/Core/include/TextIO.h"
 #include "h-tautau/Core/include/AnalysisTypes.h"
