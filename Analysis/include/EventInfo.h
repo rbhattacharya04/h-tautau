@@ -109,7 +109,7 @@ public:
                                              SummaryInfoPtr summaryInfo = SummaryInfoPtr(),
                                              UncertaintySource unc_source = UncertaintySource::None,
                                              UncertaintyScale unc_scale = UncertaintyScale::Central,
-                                             bool is_sync = false, bool debug = false, bool applyJER);
+                                             bool is_sync = false, bool debug = false, bool applyJER = false);
 
     static std::unique_ptr<EventInfo> Create(const std::shared_ptr<EventCandidate>& event_candidate,
                                              const SignalObjectSelector& signalObjectSelector,
