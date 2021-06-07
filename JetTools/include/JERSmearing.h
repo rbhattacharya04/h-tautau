@@ -71,10 +71,10 @@ public:
             }
 
             double smearFactor =  GetSmearFactor(jet, event, resolution, resolution_sf, scales_variation.at(scale));
+            const auto shiftedMomentum = jet.GetMomentum() * smearFactor;
 
             JetCandidate corr_jet(jet);
-            //smearedJet.scaleEnergy(smearFactor);
-            corr_jet.GetMomentum().SetE(jet.GetMomentum().energy()*smearFactor);
+            corr_jet.SetMomentum(shiftedMomentum);
             corrected_jets.push_back(corr_jet);
             shifted_met_px += jet.GetMomentum().px() - corr_jet.GetMomentum().px();
             shifted_met_py += jet.GetMomentum().py() - corr_jet.GetMomentum().py();
