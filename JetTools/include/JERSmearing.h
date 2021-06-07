@@ -90,9 +90,10 @@ public:
         return corrected_jets;
     }
 
-    double GetSmearFactor(const JetCandidate jet, const ntuple::Event* event,
+    double GetSmearFactor (const JetCandidate jet, const ntuple::Event* event,
                           const JME::JetResolution resolution, const JME::JetResolutionScaleFactor resolution_sf,
-                          const Variation variation){
+                          const Variation variation) const
+    {
 
         //get resolution and scale factor
         double jet_resolution = resolution.getResolution({{JME::Binning::JetPt, jet.GetMomentum().pt()},
