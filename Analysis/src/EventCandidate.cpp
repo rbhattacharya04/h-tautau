@@ -16,7 +16,7 @@ EventCandidate::EventCandidate(const ntuple::Event& _event, UncertaintySource _u
 }
 
 void EventCandidate::InitializeUncertainties(Period period, bool is_full, const std::string& working_path,
-                                             TauIdDiscriminator tau_id_discriminator)
+                                             TauIdDiscriminator tau_id_discriminator, bool applyJER)
 {
     static const std::map<analysis::Period,std::string> file_unc_sources = {
         { analysis::Period::Run2016,
